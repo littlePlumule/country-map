@@ -1,30 +1,88 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <div class="map" id="map"></div>
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<script setup>
+import L from "leaflet";
+import { ref, onMounted } from "vue";
+
+const { VITE_COUTRIES_API } = import.meta.env;
+
+const map = ref({});
+const countries = ref(null);
+
+function initMap() {
+  map.value = L.map("map", {
+    center: [23.5, 121],
+    zoom: 5,
+  });
+
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution:
+      '&copy; <a target="_blank" href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 6,
+    minZoom: 3,
+  }).addTo(map.value);
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+function setMarker() {
+  for (let country of countries.value) {
+    let info = `
+      <div class="title">
+        <img class="image" src="${country.flags.svg}"> 
+        <h2 class="name">${country.name.common}</h2>
+      </div>
+      <div>Capital：${country.capital ? country.capital[0] : "unknown"}</div>
+      <div>
+        Currency Symbol：${
+          country.currencies
+            ? Object.values(country.currencies)[0].symbol
+            : "unknown"
+        }
+      </div>
+    `;
+    L.marker(country.latlng).addTo(map.value).bindPopup(info);
+  }
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+function getCountries() {
+  fetch(VITE_COUTRIES_API)
+    .then((res) => res.json())
+    .then((json) => {
+      countries.value = json;
+      setMarker();
+    })
+    .catch(() => {
+      alert("系統異常，請稍後再試");
+    });
+}
+
+onMounted(() => {
+  initMap();
+  getCountries();
+});
+</script>
+
+<style>
+.map {
+  width: 100%;
+  height: 100%;
+}
+
+.title {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.name {
+  font-size: 15px;
+}
+
+.image {
+  vertical-align: middle;
+  height: 100%;
+  margin-right: 5px;
 }
 </style>
