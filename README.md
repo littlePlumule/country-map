@@ -4,6 +4,8 @@
 ## clone
 `git clone https://github.com/littlePlumule/country-map.git`
 
+`cd country-map`
+
 `npm install`
 
 ## environment 
