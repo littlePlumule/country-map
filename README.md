@@ -6,6 +6,8 @@
 ## Description
 串接 [REST Country](https://restcountries.com/) 並使用 [Leaflet](https://www.npmjs.com/package/leaflet) 地圖套件實作
 
+使用 Vite + Vue3 Composition API 製作
+
 功能: 
 - 顯示國家國旗
 - 顯示國家姓名
